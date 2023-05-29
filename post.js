@@ -1,5 +1,6 @@
 import { fetchData, firstLetterUpperCase, getUrlParams } from './functions.js';
 import { API_URL } from './config.js';
+import header from './navigation.js';
 
 async function init() {
   const id = getUrlParams('post_id');
@@ -17,6 +18,9 @@ async function init() {
   const postWrapperElement = createPostElement(postData);
 
   contentElement.append(postWrapperElement);
+
+  const navigationElement = header();
+  contentElement.before(navigationElement);
 }
 
 init();
