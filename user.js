@@ -1,20 +1,21 @@
-import { getUrlParams } from "./functions.js";
+import { fetchData, firstLetterUpperCase, getUrlParams } from "./functions.js";
+import header from "./navigation.js";
 
 async function init() {
   const id = getUrlParams('user_id');
 
-  const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}?_embed=posts&_embed=albums`);
-  const userData = await res.json();
+  const userData = await fetchData(`https://jsonplaceholder.typicode.com/users/${id}?_embed=posts&_embed=albums`);
 
   const contentElement = document.querySelector('#content');
   const userInfo = createUserInfoElement(userData);
-  // const userPosts = createUserPosts(userData.posts, userData.name);
-  // const userAlbums = createUserAlbums(userData.albums, userData.name);
   
   const userPosts = createDataList(userData.posts, userData.name, 'posts', 'post.html');
   const userAlbums = createDataList(userData.albums, userData.name, 'albums', 'album.html');
 
   contentElement.append(userInfo, userPosts, userAlbums);
+
+  const navigationElement = header();
+  contentElement.before(navigationElement)
 }
 
 init();
@@ -110,7 +111,7 @@ function createDataList(data, name, dataTitle, url) {
   wrapperTitle.textContent = `No ${dataTitle} :(`;
   
   if (data.length > 0) {
-    wrapperTitle.textContent = `${dataTitle} of ${name}:`;
+    wrapperTitle.textContent = firstLetterUpperCase(`${dataTitle} of ${name}:`);
     const list = document.createElement('ul');
   
     data.forEach(item => {
@@ -118,7 +119,7 @@ function createDataList(data, name, dataTitle, url) {
       const listItem = document.createElement('li');
       const itemLink = document.createElement('a');
       itemLink.href = './' + url;
-      itemLink.textContent = title;
+      itemLink.textContent = firstLetterUpperCase(title);
   
       listItem.append(itemLink);
       list.append(listItem);
