@@ -1,90 +1,28 @@
 import header from "./navigation.js";
-import { fetchData, firstLetterUpperCase, getUrlParams } from "./functions.js";
-import { API_URL, DATA_PER_SEARCH } from "./config.js";
+import searchResults from "./searchResult.js";
+import { firstLetterUpperCase, getUrlParams } from "./functions.js";
 
 async function init() {
-  const contentElement = document.querySelector('#content');
   const headerElement = header();
-  contentElement.before(headerElement);
+  document.body.prepend(headerElement);
 
+  const contentElement = document.querySelector('#content');
+  
   const searchPhrase = getUrlParams('search');
-  console.log(searchPhrase);
-
-  const postsData = await fetchData(`${API_URL}/posts?q=${searchPhrase}&_limit=${DATA_PER_SEARCH}`);
-  const users = await fetchData(`${API_URL}/users?q=${searchPhrase}&_limit=${DATA_PER_SEARCH}`);
-  const albums = await fetchData(`${API_URL}/albums?q=${searchPhrase}&_limit=${DATA_PER_SEARCH}`);
   
-  const updatedPosts = postsData.map(post => {
-    const postData = {
-      title: post.title,
-      id: post.id,
-    }
+  searchResults(searchPhrase, contentElement);
+  
+  const searchForm = document.querySelector('#search-form');
+  searchForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-    return postData;
+    const form = event.target;
+    const searchInputValue = form.search.value
+
+    searchResults(searchInputValue, contentElement);
+
+    form.reset();
   })
-
-  const updatedUsers = users.map(user => {
-    const userData = {
-      title: user.name,
-      id: user.id,
-    }
-
-    return userData;
-  })
-
-  const postsList = createSearchList(updatedPosts, 'post.html?post_id', '', 'posts');
-  const usersList = createSearchList(updatedUsers, 'user.html?user_id', 'users-list-wrapper', 'users');
-  const albumsList = createSearchList(albums, 'album.html?album_id', 'albums-list-wrapper', 'albums');
-
-  contentElement.append(postsList, usersList, albumsList);
-}
-
-function createSearchList(data, url, className, category) {
-  if (!data || !url) {
-    console.error('Data and url must be included in the function');
-    return '';
-  }
-
-  const searchListWrapper = document.createElement('div');
-  searchListWrapper.classList.add('search-list-wrapper');
-  
-  if (className) {
-    searchListWrapper.classList.add(className);
-  }
-
-  let categoryText = category ? category : 'data';
-
-  const searchListTitle = document.createElement('h2');
-  searchListTitle.textContent = `No ${categoryText} :(`;
-
-  searchListWrapper.append(searchListTitle);
-
-  if (data.length > 0) {
-    searchListTitle.textContent = firstLetterUpperCase(`${categoryText}:`);
-
-    const searchList = document.createElement('ul');
-    
-    data.forEach(item => {
-      const itemElement = document.createElement('li');
-
-      if (url) {
-        const itemLink = document.createElement('a');
-        
-        itemLink.textContent = firstLetterUpperCase(item.title);
-        itemLink.href = `./${url}=${item.id}`;
-        
-        itemElement.append(itemLink);
-      } else {
-        itemElement.textContent = firstLetterUpperCase(item.title);
-      }
-
-      searchList.append(itemElement);
-    })
-
-    searchListWrapper.append(searchList);
-  }
-  
-  return searchListWrapper;
 }
 
 function createPostsList(posts) {
