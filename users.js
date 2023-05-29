@@ -1,6 +1,8 @@
+import { fetchData } from "./functions.js";
+
 async function init() {
-  const res = await fetch('https://jsonplaceholder.typicode.com/users?_embed=posts');
-  const usersData = await res.json();
+  // const res = await fetch('https://jsonplaceholder.typicode.com/users?_embed=posts');
+  const usersData = await fetchData('https://jsonplaceholder.typicode.com/users?_embed=posts');
 
   const contentElement = document.querySelector('#content');
   const usersListElement = createUsersList(usersData);
